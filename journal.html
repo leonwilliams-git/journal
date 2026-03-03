@@ -1,0 +1,811 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Evening">
+<meta name="theme-color" content="#0d1117">
+<title>Evening Journal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #0d1117;
+  --bg2: #161b22;
+  --bg3: #1c2333;
+  --border: rgba(255,255,255,0.07);
+  --amber: #e8a23a;
+  --amber-dim: rgba(232,162,58,0.15);
+  --amber-glow: rgba(232,162,58,0.06);
+  --text: #e6edf3;
+  --text-dim: rgba(230,237,243,0.45);
+  --text-mid: rgba(230,237,243,0.7);
+  --green: #3fb950;
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+html, body {
+  height: 100%; background: var(--bg);
+  color: var(--text); font-family: 'DM Sans', sans-serif;
+  font-weight: 300; overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── SCREENS ── */
+.screen {
+  display: none; min-height: 100vh; min-height: 100dvh;
+  flex-direction: column;
+  padding-top: calc(var(--safe-top) + 1rem);
+  padding-bottom: calc(var(--safe-bottom) + 1rem);
+}
+.screen.active { display: flex; }
+
+/* ── HOME SCREEN ── */
+#home {
+  align-items: center; justify-content: center;
+  padding: 2rem 1.5rem;
+  background: radial-gradient(ellipse 80% 60% at 50% 100%, rgba(232,162,58,0.06) 0%, transparent 70%);
+}
+.home-time {
+  font-family: 'Lora', serif; font-size: 4.5rem; font-weight: 400;
+  color: var(--text); letter-spacing: -0.02em; line-height: 1;
+  margin-bottom: 0.3rem; text-align: center;
+}
+.home-date {
+  font-size: 0.78rem; letter-spacing: 0.18em; text-transform: uppercase;
+  color: var(--text-dim); text-align: center; margin-bottom: 3.5rem;
+}
+.home-greeting {
+  font-family: 'Lora', serif; font-size: 1.6rem; font-style: italic;
+  color: var(--text-mid); text-align: center; margin-bottom: 0.6rem;
+  line-height: 1.3;
+}
+.home-sub {
+  font-size: 0.85rem; color: var(--text-dim); text-align: center;
+  margin-bottom: 3rem; line-height: 1.6; max-width: 26ch; margin-left: auto; margin-right: auto;
+}
+
+.streak-badge {
+  display: flex; align-items: center; gap: 0.5rem;
+  background: var(--amber-dim); border: 1px solid rgba(232,162,58,0.2);
+  padding: 0.5rem 1rem; border-radius: 2rem; margin-bottom: 3rem;
+  font-size: 0.78rem; color: var(--amber); font-weight: 500; letter-spacing: 0.05em;
+}
+.streak-badge .flame { font-size: 1rem; }
+
+.btn-start {
+  width: 100%; max-width: 320px;
+  padding: 1.1rem 2rem;
+  background: var(--amber); color: #0d1117;
+  border: none; font-family: 'DM Sans', sans-serif;
+  font-size: 0.85rem; font-weight: 500; letter-spacing: 0.12em;
+  text-transform: uppercase; cursor: pointer;
+  transition: opacity 0.2s, transform 0.1s;
+  -webkit-tap-highlight-color: transparent;
+}
+.btn-start:active { transform: scale(0.98); opacity: 0.9; }
+
+.home-nav {
+  display: flex; gap: 1.5rem; margin-top: 2rem;
+}
+.home-nav button {
+  background: none; border: none; color: var(--text-dim);
+  font-family: 'DM Sans', sans-serif; font-size: 0.75rem;
+  letter-spacing: 0.12em; text-transform: uppercase; cursor: pointer;
+  padding: 0.5rem; transition: color 0.2s;
+  -webkit-tap-highlight-color: transparent;
+}
+.home-nav button:hover, .home-nav button:active { color: var(--amber); }
+
+/* ── JOURNAL SCREEN ── */
+#journal { padding: 0; }
+.journal-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: calc(var(--safe-top) + 1rem) 1.5rem 1rem;
+  border-bottom: 1px solid var(--border);
+  position: sticky; top: 0; background: var(--bg); z-index: 10;
+}
+.journal-back {
+  background: none; border: none; color: var(--text-dim);
+  font-size: 1.2rem; cursor: pointer; padding: 0.3rem;
+  -webkit-tap-highlight-color: transparent; display: flex; align-items: center; gap: 0.4rem;
+  font-family: 'DM Sans', sans-serif; font-size: 0.8rem; letter-spacing: 0.05em;
+}
+.journal-back:active { color: var(--amber); }
+.journal-progress-text {
+  font-size: 0.72rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--text-dim);
+}
+.journal-skip {
+  background: none; border: none; color: var(--text-dim);
+  font-family: 'DM Sans', sans-serif; font-size: 0.75rem;
+  letter-spacing: 0.08em; cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.journal-skip:active { color: var(--amber); }
+
+.progress-bar-wrap {
+  height: 2px; background: var(--border);
+}
+.progress-bar {
+  height: 2px; background: var(--amber);
+  transition: width 0.4s ease;
+}
+
+.questions-wrap {
+  flex: 1; overflow: hidden; position: relative;
+}
+.question-slide {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column;
+  padding: 2.5rem 1.5rem 1.5rem;
+  transform: translateX(100%); opacity: 0;
+  transition: transform 0.35s ease, opacity 0.35s ease;
+}
+.question-slide.active { transform: translateX(0); opacity: 1; }
+.question-slide.exit { transform: translateX(-100%); opacity: 0; }
+
+.q-number {
+  font-size: 0.65rem; letter-spacing: 0.25em; text-transform: uppercase;
+  color: var(--amber); margin-bottom: 0.75rem; font-weight: 500;
+}
+.q-text {
+  font-family: 'Lora', serif; font-size: 1.45rem; font-weight: 400;
+  line-height: 1.4; color: var(--text); margin-bottom: 2rem;
+}
+.q-textarea {
+  flex: 1; min-height: 180px;
+  background: var(--bg2); border: 1px solid var(--border);
+  color: var(--text); font-family: 'DM Sans', sans-serif;
+  font-size: 1rem; font-weight: 300; line-height: 1.7;
+  padding: 1.2rem; resize: none; outline: none;
+  transition: border-color 0.2s;
+  border-radius: 0;
+  -webkit-appearance: none;
+}
+.q-textarea::placeholder { color: var(--text-dim); }
+.q-textarea:focus { border-color: rgba(232,162,58,0.4); }
+
+.q-hint {
+  font-size: 0.75rem; color: var(--text-dim); margin-top: 0.75rem;
+  line-height: 1.5; font-style: italic;
+}
+
+.q-nav {
+  padding: 1rem 1.5rem calc(var(--safe-bottom) + 1rem);
+  display: flex; gap: 0.75rem;
+}
+.q-nav-back {
+  padding: 1rem 1.4rem;
+  background: var(--bg2); border: 1px solid var(--border);
+  color: var(--text-mid); font-family: 'DM Sans', sans-serif;
+  font-size: 0.82rem; font-weight: 400; cursor: pointer;
+  -webkit-tap-highlight-color: transparent; transition: border-color 0.2s;
+}
+.q-nav-back:active { border-color: var(--amber); }
+.q-nav-next {
+  flex: 1; padding: 1rem;
+  background: var(--amber); color: #0d1117;
+  border: none; font-family: 'DM Sans', sans-serif;
+  font-size: 0.82rem; font-weight: 500; letter-spacing: 0.1em;
+  text-transform: uppercase; cursor: pointer;
+  -webkit-tap-highlight-color: transparent; transition: opacity 0.2s;
+}
+.q-nav-next:active { opacity: 0.85; }
+
+/* ── DONE SCREEN ── */
+#done {
+  align-items: center; justify-content: center; padding: 2rem 1.5rem;
+  background: radial-gradient(ellipse 80% 50% at 50% 100%, rgba(63,185,80,0.06) 0%, transparent 70%);
+}
+.done-icon {
+  width: 64px; height: 64px; border-radius: 50%;
+  background: rgba(63,185,80,0.12); border: 1px solid rgba(63,185,80,0.3);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.8rem; margin-bottom: 1.5rem;
+  animation: popIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+@keyframes popIn { from { transform: scale(0); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+.done-title {
+  font-family: 'Lora', serif; font-size: 1.8rem; font-weight: 400;
+  color: var(--text); text-align: center; margin-bottom: 0.5rem;
+}
+.done-sub {
+  font-size: 0.88rem; color: var(--text-dim); text-align: center;
+  line-height: 1.6; max-width: 28ch; margin-bottom: 2.5rem;
+}
+
+.done-entry-preview {
+  width: 100%; max-width: 400px;
+  background: var(--bg2); border: 1px solid var(--border);
+  padding: 1.2rem 1.4rem; margin-bottom: 2rem;
+}
+.preview-date {
+  font-size: 0.65rem; letter-spacing: 0.2em; text-transform: uppercase;
+  color: var(--amber); margin-bottom: 1rem; font-weight: 500;
+}
+.preview-q { font-size: 0.72rem; color: var(--text-dim); margin-bottom: 0.2rem; letter-spacing: 0.05em; }
+.preview-a { font-size: 0.88rem; color: var(--text-mid); line-height: 1.5; margin-bottom: 0.9rem; }
+.preview-a:last-child { margin-bottom: 0; }
+
+.done-actions { width: 100%; max-width: 400px; display: flex; flex-direction: column; gap: 0.75rem; }
+
+.action-btn {
+  width: 100%; padding: 1rem 1.4rem;
+  display: flex; align-items: center; gap: 1rem;
+  background: var(--bg2); border: 1px solid var(--border);
+  color: var(--text); font-family: 'DM Sans', sans-serif;
+  font-size: 0.85rem; font-weight: 400; cursor: pointer;
+  text-decoration: none; transition: border-color 0.2s, background 0.2s;
+  -webkit-tap-highlight-color: transparent;
+  text-align: left;
+}
+.action-btn:active { border-color: var(--amber); background: var(--amber-glow); }
+.action-icon { font-size: 1.1rem; flex-shrink: 0; width: 1.5rem; text-align: center; }
+.action-label { flex: 1; }
+.action-label strong { display: block; font-weight: 500; margin-bottom: 0.1rem; }
+.action-label span { font-size: 0.75rem; color: var(--text-dim); }
+.action-arrow { color: var(--text-dim); font-size: 0.8rem; }
+
+.done-home-btn {
+  margin-top: 0.5rem; background: none; border: none;
+  color: var(--text-dim); font-family: 'DM Sans', sans-serif;
+  font-size: 0.78rem; letter-spacing: 0.1em; text-transform: uppercase;
+  cursor: pointer; padding: 0.5rem;
+  -webkit-tap-highlight-color: transparent;
+}
+.done-home-btn:active { color: var(--amber); }
+
+/* ── HISTORY SCREEN ── */
+#history { padding: 0; }
+.history-header {
+  padding: calc(var(--safe-top) + 1rem) 1.5rem 1rem;
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+  position: sticky; top: 0; background: var(--bg); z-index: 10;
+}
+.history-title {
+  font-family: 'Lora', serif; font-size: 1.3rem; font-weight: 400;
+}
+.history-back {
+  background: none; border: none; color: var(--text-dim);
+  font-family: 'DM Sans', sans-serif; font-size: 0.78rem;
+  letter-spacing: 0.08em; cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.history-back:active { color: var(--amber); }
+.history-list { flex: 1; overflow-y: auto; padding: 1rem 1.5rem; }
+.history-empty {
+  text-align: center; color: var(--text-dim); font-size: 0.88rem;
+  padding: 4rem 2rem; line-height: 1.7;
+}
+.history-entry {
+  border-bottom: 1px solid var(--border); padding: 1.2rem 0;
+  cursor: pointer; transition: background 0.15s;
+}
+.history-entry-date {
+  font-size: 0.68rem; letter-spacing: 0.18em; text-transform: uppercase;
+  color: var(--amber); margin-bottom: 0.4rem; font-weight: 500;
+}
+.history-entry-preview {
+  font-size: 0.88rem; color: var(--text-mid); line-height: 1.5;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+}
+.history-export-all {
+  padding: 1rem 1.5rem calc(var(--safe-bottom) + 1rem);
+  border-top: 1px solid var(--border);
+}
+.history-export-btn {
+  width: 100%; padding: 0.9rem;
+  background: var(--bg2); border: 1px solid var(--border);
+  color: var(--amber); font-family: 'DM Sans', sans-serif;
+  font-size: 0.78rem; letter-spacing: 0.12em; text-transform: uppercase;
+  cursor: pointer; font-weight: 500; transition: border-color 0.2s;
+}
+.history-export-btn:active { border-color: var(--amber); }
+
+/* ── SETTINGS SCREEN ── */
+#settings { padding: 0; }
+.settings-header {
+  padding: calc(var(--safe-top) + 1rem) 1.5rem 1rem;
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+  position: sticky; top: 0; background: var(--bg); z-index: 10;
+}
+.settings-title { font-family: 'Lora', serif; font-size: 1.3rem; font-weight: 400; }
+.settings-save {
+  background: none; border: none; color: var(--amber);
+  font-family: 'DM Sans', sans-serif; font-size: 0.78rem;
+  letter-spacing: 0.08em; cursor: pointer; font-weight: 500;
+  -webkit-tap-highlight-color: transparent;
+}
+.settings-body { flex: 1; overflow-y: auto; padding: 1.5rem; display: flex; flex-direction: column; gap: 2rem; }
+.settings-section-title {
+  font-size: 0.65rem; letter-spacing: 0.25em; text-transform: uppercase;
+  color: var(--amber); margin-bottom: 1rem; font-weight: 500;
+}
+.settings-field { margin-bottom: 1rem; }
+.settings-field label {
+  display: block; font-size: 0.72rem; letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--text-dim); margin-bottom: 0.4rem;
+}
+.settings-field input {
+  width: 100%; background: var(--bg2); border: 1px solid var(--border);
+  color: var(--text); padding: 0.75rem 1rem;
+  font-family: 'DM Sans', sans-serif; font-size: 0.9rem; font-weight: 300;
+  outline: none; transition: border-color 0.2s; -webkit-appearance: none;
+}
+.settings-field input:focus { border-color: rgba(232,162,58,0.4); }
+.settings-info {
+  background: var(--bg2); border: 1px solid var(--border);
+  padding: 1rem 1.2rem;
+  font-size: 0.8rem; color: var(--text-dim); line-height: 1.7;
+}
+.settings-info a { color: var(--amber); text-decoration: none; }
+.settings-back {
+  background: none; border: none; color: var(--text-dim);
+  font-family: 'DM Sans', sans-serif; font-size: 0.78rem;
+  letter-spacing: 0.08em; cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.settings-back:active { color: var(--amber); }
+
+/* ── TOAST ── */
+.toast {
+  position: fixed; bottom: calc(var(--safe-bottom) + 5rem); left: 50%; transform: translateX(-50%) translateY(20px);
+  background: var(--bg3); border: 1px solid var(--border);
+  color: var(--text); font-size: 0.82rem; padding: 0.75rem 1.4rem;
+  opacity: 0; transition: opacity 0.3s, transform 0.3s; pointer-events: none;
+  white-space: nowrap; z-index: 999;
+}
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+/* ── ENTRY DETAIL SCREEN ── */
+#entry-detail { padding: 0; }
+.detail-header {
+  padding: calc(var(--safe-top) + 1rem) 1.5rem 1rem;
+  border-bottom: 1px solid var(--border);
+  position: sticky; top: 0; background: var(--bg); z-index: 10;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.detail-back {
+  background: none; border: none; color: var(--text-dim);
+  font-family: 'DM Sans', sans-serif; font-size: 0.78rem;
+  letter-spacing: 0.08em; cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.detail-date { font-family: 'Lora', serif; font-size: 1rem; color: var(--text-mid); }
+.detail-body { flex: 1; overflow-y: auto; padding: 2rem 1.5rem; }
+.detail-block { margin-bottom: 2rem; }
+.detail-q { font-size: 0.7rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--amber); margin-bottom: 0.6rem; font-weight: 500; }
+.detail-a { font-family: 'Lora', serif; font-size: 1.05rem; color: var(--text-mid); line-height: 1.75; }
+</style>
+</head>
+<body>
+
+<!-- ══ HOME ══ -->
+<div class="screen active" id="home">
+  <div class="home-time" id="clock">22:14</div>
+  <div class="home-date" id="home-date">Monday, 2 March</div>
+  <div class="home-greeting" id="greeting">Good evening.</div>
+  <div class="home-sub">Take a few minutes to reflect on your day.</div>
+  <div class="streak-badge" id="streak-badge">
+    <span class="flame">🔥</span>
+    <span id="streak-text">1 day streak</span>
+  </div>
+  <button class="btn-start" onclick="startJournal()">Begin tonight's entry</button>
+  <div class="home-nav">
+    <button onclick="showScreen('history')">Past entries</button>
+    <button onclick="showScreen('settings')">Settings</button>
+  </div>
+</div>
+
+<!-- ══ JOURNAL ══ -->
+<div class="screen" id="journal">
+  <div class="journal-header">
+    <button class="journal-back" onclick="showScreen('home')">← Back</button>
+    <span class="journal-progress-text" id="progress-text">Question 1 of 3</span>
+    <button class="journal-skip" onclick="nextQuestion(true)">Skip</button>
+  </div>
+  <div class="progress-bar-wrap">
+    <div class="progress-bar" id="progress-bar" style="width:33%"></div>
+  </div>
+
+  <div class="questions-wrap" id="questions-wrap">
+    <!-- Questions rendered by JS -->
+  </div>
+
+  <div class="q-nav">
+    <button class="q-nav-back" id="q-back-btn" onclick="prevQuestion()" style="display:none">Back</button>
+    <button class="q-nav-next" id="q-next-btn" onclick="nextQuestion(false)">Next →</button>
+  </div>
+</div>
+
+<!-- ══ DONE ══ -->
+<div class="screen" id="done">
+  <div class="done-icon">✓</div>
+  <h2 class="done-title">Entry saved.</h2>
+  <p class="done-sub" id="done-sub">Another day reflected on. Well done.</p>
+
+  <div class="done-entry-preview" id="entry-preview"></div>
+
+  <div class="done-actions">
+    <button class="action-btn" onclick="copyToClipboard()">
+      <span class="action-icon">📋</span>
+      <span class="action-label">
+        <strong>Copy to clipboard</strong>
+        <span>Paste into your Google Doc diary</span>
+      </span>
+      <span class="action-arrow">→</span>
+    </button>
+    <a class="action-btn" id="calendar-link" href="#" target="_blank" rel="noopener">
+      <span class="action-icon">📅</span>
+      <span class="action-label">
+        <strong>Add priorities to Calendar</strong>
+        <span>Opens Google Calendar — pre-filled</span>
+      </span>
+      <span class="action-arrow">→</span>
+    </a>
+  </div>
+
+  <button class="done-home-btn" onclick="showScreen('home')">Done for tonight</button>
+</div>
+
+<!-- ══ HISTORY ══ -->
+<div class="screen" id="history">
+  <div class="history-header">
+    <button class="history-back" onclick="showScreen('home')">← Back</button>
+    <h2 class="history-title">Past Entries</h2>
+    <span style="width:60px"></span>
+  </div>
+  <div class="history-list" id="history-list"></div>
+  <div class="history-export-all">
+    <button class="history-export-btn" onclick="exportAll()">Export all entries as text</button>
+  </div>
+</div>
+
+<!-- ══ ENTRY DETAIL ══ -->
+<div class="screen" id="entry-detail">
+  <div class="detail-header">
+    <button class="detail-back" onclick="showScreen('history')">← Back</button>
+    <span class="detail-date" id="detail-date"></span>
+    <span style="width:60px"></span>
+  </div>
+  <div class="detail-body" id="detail-body"></div>
+</div>
+
+<!-- ══ SETTINGS ══ -->
+<div class="screen" id="settings">
+  <div class="settings-header">
+    <button class="settings-back" onclick="showScreen('home')">← Back</button>
+    <h2 class="settings-title">Settings</h2>
+    <button class="settings-save" onclick="saveSettings()">Save</button>
+  </div>
+  <div class="settings-body">
+    <div>
+      <div class="settings-section-title">Your Questions</div>
+      <div class="settings-field">
+        <label>Question 1</label>
+        <input type="text" id="sq1" value="What were you proud of today?">
+      </div>
+      <div class="settings-field">
+        <label>Question 2</label>
+        <input type="text" id="sq2" value="What did you learn today?">
+      </div>
+      <div class="settings-field">
+        <label>Question 3</label>
+        <input type="text" id="sq3" value="What are your priorities for tomorrow?">
+      </div>
+    </div>
+    <div>
+      <div class="settings-section-title">Your Name</div>
+      <div class="settings-field">
+        <input type="text" id="s-name" placeholder="e.g. James" value="">
+      </div>
+    </div>
+    <div>
+      <div class="settings-section-title">How to use with Google</div>
+      <div class="settings-info">
+        <strong style="color:var(--text);display:block;margin-bottom:0.5rem">Saving to Google Docs</strong>
+        After each entry, tap "Copy to clipboard" then open your Google Doc and paste (Cmd/Ctrl+V). The entry will be formatted and ready to go. Pin your Doc to your browser bookmarks for quick access.
+        <br><br>
+        <strong style="color:var(--text);display:block;margin-bottom:0.5rem">Adding to Google Calendar</strong>
+        Tap "Add priorities to Calendar" — it opens Google Calendar with tomorrow's priorities pre-filled as an all-day event called "Tomorrow's Priorities". Just hit Save.
+        <br><br>
+        <strong style="color:var(--text);display:block;margin-bottom:0.5rem">Install on your phone</strong>
+        In Safari: tap the Share button → "Add to Home Screen". In Chrome: tap the menu → "Add to Home Screen". The app will work offline once installed.
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ── STATE ──
+let questions = ['What were you proud of today?', 'What did you learn today?', 'What are your priorities for tomorrow?'];
+let answers = ['', '', ''];
+let currentQ = 0;
+let userName = '';
+let entries = [];
+
+// ── INIT ──
+function init() {
+  loadData();
+  renderClock();
+  setInterval(renderClock, 10000);
+  updateStreak();
+  loadSettings();
+}
+
+function loadData() {
+  try {
+    const stored = localStorage.getItem('evening_entries');
+    entries = stored ? JSON.parse(stored) : [];
+  } catch(e) { entries = []; }
+}
+
+function saveData() {
+  localStorage.setItem('evening_entries', JSON.stringify(entries));
+}
+
+function loadSettings() {
+  try {
+    const s = JSON.parse(localStorage.getItem('evening_settings') || '{}');
+    if (s.q1) questions[0] = s.q1;
+    if (s.q2) questions[1] = s.q2;
+    if (s.q3) questions[2] = s.q3;
+    if (s.name) userName = s.name;
+    document.getElementById('sq1').value = questions[0];
+    document.getElementById('sq2').value = questions[1];
+    document.getElementById('sq3').value = questions[2];
+    document.getElementById('s-name').value = userName;
+  } catch(e) {}
+}
+
+function saveSettings() {
+  questions[0] = document.getElementById('sq1').value || questions[0];
+  questions[1] = document.getElementById('sq2').value || questions[1];
+  questions[2] = document.getElementById('sq3').value || questions[2];
+  userName = document.getElementById('s-name').value;
+  localStorage.setItem('evening_settings', JSON.stringify({
+    q1: questions[0], q2: questions[1], q3: questions[2], name: userName
+  }));
+  toast('Settings saved ✓');
+  showScreen('home');
+}
+
+// ── CLOCK & GREETING ──
+function renderClock() {
+  const now = new Date();
+  const h = String(now.getHours()).padStart(2,'0');
+  const m = String(now.getMinutes()).padStart(2,'0');
+  document.getElementById('clock').textContent = h + ':' + m;
+  const days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  document.getElementById('home-date').textContent = days[now.getDay()] + ', ' + now.getDate() + ' ' + months[now.getMonth()];
+  const hr = now.getHours();
+  const name = userName ? ', ' + userName : '';
+  let greet = hr < 17 ? 'Good afternoon' + name + '.' : hr < 21 ? 'Good evening' + name + '.' : 'Good night' + name + '.';
+  document.getElementById('greeting').textContent = greet;
+}
+
+// ── STREAK ──
+function updateStreak() {
+  const streak = calcStreak();
+  const el = document.getElementById('streak-text');
+  if (streak === 0) {
+    el.textContent = 'Start your streak tonight';
+    document.querySelector('.streak-badge .flame').textContent = '✨';
+  } else {
+    el.textContent = streak + ' day' + (streak === 1 ? '' : 's') + ' in a row';
+  }
+}
+
+function calcStreak() {
+  if (!entries.length) return 0;
+  const today = dateStr(new Date());
+  const dates = [...new Set(entries.map(e => e.date))].sort().reverse();
+  if (dates[0] !== today && dates[0] !== dateStr(yesterday())) return 0;
+  let streak = 0, check = new Date();
+  if (dates[0] === today) { streak = 1; check = yesterday(); } else { check = yesterday(); }
+  for (let i = (dates[0] === today ? 1 : 0); i < dates.length; i++) {
+    if (dates[i] === dateStr(check)) { streak++; check = new Date(check.getTime() - 86400000); }
+    else break;
+  }
+  return streak;
+}
+
+function yesterday() { return new Date(Date.now() - 86400000); }
+function dateStr(d) { return d.toISOString().split('T')[0]; }
+
+// ── SCREENS ──
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  if (id === 'history') renderHistory();
+  if (id === 'home') { renderClock(); updateStreak(); }
+}
+
+// ── JOURNAL ──
+function startJournal() {
+  answers = ['', '', ''];
+  currentQ = 0;
+  renderQuestions();
+  showScreen('journal');
+  setTimeout(() => activateSlide(0), 50);
+}
+
+function renderQuestions() {
+  const wrap = document.getElementById('questions-wrap');
+  wrap.innerHTML = '';
+  questions.forEach((q, i) => {
+    const slide = document.createElement('div');
+    slide.className = 'question-slide';
+    slide.id = 'slide-' + i;
+    slide.innerHTML = `
+      <div class="q-number">Question ${i+1} of ${questions.length}</div>
+      <div class="q-text">${q}</div>
+      <textarea class="q-textarea" id="ans-${i}" placeholder="Write freely — there are no wrong answers…" oninput="answers[${i}]=this.value"></textarea>
+      <div class="q-hint">${hints[i]}</div>
+    `;
+    wrap.appendChild(slide);
+  });
+}
+
+const hints = [
+  'Big or small — a moment of kindness, a task completed, staying calm under pressure.',
+  'A skill, an insight, something about yourself or the world around you.',
+  'Keep it to 1–3 things. Specific and actionable works best.'
+];
+
+function activateSlide(n) {
+  document.querySelectorAll('.question-slide').forEach((s, i) => {
+    s.classList.remove('active', 'exit');
+    if (i < n) s.classList.add('exit');
+    if (i === n) s.classList.add('active');
+  });
+  const pct = Math.round(((n + 1) / questions.length) * 100);
+  document.getElementById('progress-bar').style.width = pct + '%';
+  document.getElementById('progress-text').textContent = 'Question ' + (n+1) + ' of ' + questions.length;
+  document.getElementById('q-back-btn').style.display = n === 0 ? 'none' : 'block';
+  document.getElementById('q-next-btn').textContent = n === questions.length - 1 ? 'Save entry ✓' : 'Next →';
+  setTimeout(() => { const ta = document.getElementById('ans-' + n); if (ta) { ta.value = answers[n]; ta.focus(); } }, 100);
+}
+
+function nextQuestion(skip) {
+  if (!skip) answers[currentQ] = document.getElementById('ans-' + currentQ)?.value || '';
+  if (currentQ < questions.length - 1) {
+    currentQ++;
+    activateSlide(currentQ);
+  } else {
+    saveEntry();
+  }
+}
+
+function prevQuestion() {
+  answers[currentQ] = document.getElementById('ans-' + currentQ)?.value || '';
+  if (currentQ > 0) { currentQ--; activateSlide(currentQ); }
+}
+
+// ── SAVE ENTRY ──
+function saveEntry() {
+  const now = new Date();
+  const entry = {
+    id: now.getTime(),
+    date: dateStr(now),
+    datetime: now.toISOString(),
+    questions: [...questions],
+    answers: [...answers]
+  };
+  entries.unshift(entry);
+  saveData();
+  buildDoneScreen(entry);
+  showScreen('done');
+}
+
+function buildDoneScreen(entry) {
+  // Preview
+  const prev = document.getElementById('entry-preview');
+  prev.innerHTML = `<div class="preview-date">${formatDate(entry.date)}</div>` +
+    entry.questions.map((q, i) => `
+      <div class="preview-q">${q}</div>
+      <div class="preview-a">${entry.answers[i] || '—'}</div>
+    `).join('');
+
+  // Done subtitle
+  document.getElementById('done-sub').textContent = calcStreak() > 1
+    ? calcStreak() + ' days in a row. Keep it up.'
+    : 'Another day reflected on. Well done.';
+
+  // Calendar link — priorities = answer to Q3
+  const tomorrow = new Date(entry.datetime);
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  const tStr = tomorrow.toISOString().replace(/-/g,'').split('T')[0];
+  const priorities = (entry.answers[2] || 'See journal').replace(/\n/g,' ').slice(0, 200);
+  const calUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=Tomorrow%27s+Priorities&dates=${tStr}/${tStr}&details=${encodeURIComponent(priorities)}`;
+  document.getElementById('calendar-link').href = calUrl;
+}
+
+// ── CLIPBOARD ──
+function copyToClipboard() {
+  if (!entries.length) return;
+  const e = entries[0];
+  const text = formatEntry(e);
+  navigator.clipboard.writeText(text).then(() => {
+    toast('Copied! Open your Google Doc and paste ✓');
+  }).catch(() => {
+    // fallback
+    const ta = document.createElement('textarea');
+    ta.value = text; document.body.appendChild(ta);
+    ta.select(); document.execCommand('copy'); document.body.removeChild(ta);
+    toast('Copied! Open your Google Doc and paste ✓');
+  });
+}
+
+function formatEntry(e) {
+  const lines = [`\n─────────────────────────\n${formatDate(e.date)}\n─────────────────────────\n`];
+  e.questions.forEach((q, i) => {
+    lines.push(`${q}\n${e.answers[i] || '—'}\n`);
+  });
+  return lines.join('\n');
+}
+
+// ── HISTORY ──
+function renderHistory() {
+  const list = document.getElementById('history-list');
+  if (!entries.length) {
+    list.innerHTML = '<div class="history-empty">No entries yet.<br>Your first reflection is waiting.</div>';
+    return;
+  }
+  list.innerHTML = entries.map((e, idx) => `
+    <div class="history-entry" onclick="showEntry(${idx})">
+      <div class="history-entry-date">${formatDate(e.date)}</div>
+      <div class="history-entry-preview">${e.answers[0] || e.answers[1] || '(no answer recorded)'}</div>
+    </div>
+  `).join('');
+}
+
+function showEntry(idx) {
+  const e = entries[idx];
+  document.getElementById('detail-date').textContent = formatDate(e.date);
+  document.getElementById('detail-body').innerHTML = e.questions.map((q, i) => `
+    <div class="detail-block">
+      <div class="detail-q">${q}</div>
+      <div class="detail-a">${(e.answers[i] || '—').replace(/\n/g,'<br>')}</div>
+    </div>
+  `).join('');
+  showScreen('entry-detail');
+}
+
+function exportAll() {
+  if (!entries.length) { toast('No entries to export yet'); return; }
+  const text = 'EVENING JOURNAL\n' + '═'.repeat(40) + '\n' + entries.map(formatEntry).join('\n');
+  navigator.clipboard.writeText(text).then(() => {
+    toast('All entries copied — paste into Google Docs ✓');
+  }).catch(() => toast('Could not copy — try again'));
+}
+
+// ── UTILS ──
+function formatDate(dateStr) {
+  const d = new Date(dateStr + 'T12:00:00');
+  return d.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+}
+
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+// ── START ──
+init();
+</script>
+</body>
+</html>
